@@ -35,12 +35,17 @@ from sc_gamelog.events import (
 from sc_gamelog.parser import parse_line
 
 
-def test_a_store_names_its_item_without_the_entity_id_and_its_place_as_target():
+def test_a_store_names_its_class_apart_from_its_entity_id_and_its_place_as_target():
     event = parse_line(STORE_QUEUED)
     assert event == InventoryRequestQueued(
         timestamp=datetime(2026, 11, 3, 10, 23, 38, 989000, tzinfo=UTC), request_id=8, kind="Store",
         source=InventoryEnd("none"), target=InventoryEnd("location", HOME), source_class="", source_amount=0,
-        item_class="rsi_deckcrew_armor_light_helmet_01_01_12", action="None")
+        item_class="rsi_deckcrew_armor_light_helmet_01_01_12", action="None", entity_id=800000000020)
+
+
+def test_a_move_and_a_take_carry_no_entity_id():
+    assert parse_line(MOVE_OUT_QUEUED).entity_id is None
+    assert parse_line(TAKE_QUEUED).entity_id is None
 
 
 def test_a_move_out_names_the_class_and_amount_and_both_ends():

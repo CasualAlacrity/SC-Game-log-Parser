@@ -152,6 +152,9 @@ class InventoryRequestQueued:
     source_amount: int
     item_class: str
     action: str  # e.g. "Carry", "Equip", "None"
+    # A Store's unique item ID (the number after the class in `Item[<class>_<id>]`); None when the line carries none.
+    # Moves and takes name only a class, so this is the one request that identifies the single item.
+    entity_id: int | None = None
 
 
 @dataclass(frozen=True)

@@ -85,7 +85,7 @@ _MOVE_LISTED = re.compile(r"New Request\[(\d+)\] Player ?\[[^\]]*\] Type\[(\w+)\
 _REQUEST_COMPLETE = re.compile(r"Request\[(\d+)\] for .*? Type\[(\w+)\] Result\[(\w+)\]")
 _LOCATION_RELEASED = re.compile(r"removing location \[\d+:Location:(\d+)\] from cache")
 _TOKEN_FLOW = re.compile(r"on Inventory\[(.+?)_\d+, (\d+)\]")
-_ENTITY_SUFFIX = re.compile(r"_\d{6,}$")
+_ENTITY_SUFFIX = re.compile(r"_(\d{6,})$")
 _CLASS_NAME = re.compile(r"\w+")
 _NO_CLASS = ("", "NULL", "NONE", "none")
 
@@ -292,6 +292,12 @@ def _item_class(text: str) -> str:
     return "" if text in _NO_CLASS else _ENTITY_SUFFIX.sub("", text)
 
 
+def _entity_id(text: str) -> int | None:
+    """The unique item ID after the class in 'Drink_bottle_cruz_01_lux_a_914959236451', or None."""
+    match = _ENTITY_SUFFIX.search(text)
+    return int(match.group(1)) if match else None
+
+
 def _inventory_end(text: str) -> InventoryEnd:
     """`INVALID`, `<playerId>:Location:<placeId>` or `<containerId>:Container:0`. Any other shape is not guessed."""
     if text == "INVALID":
@@ -312,7 +318,7 @@ def _parse_inventory_queued(timestamp: datetime, rest: str) -> InventoryRequestQ
         timestamp=timestamp, request_id=int(match.group(1)), kind=match.group(2),
         source=_inventory_end(match.group(3)), target=_inventory_end(match.group(4)),
         source_class=_item_class(match.group(5)), source_amount=int(match.group(6)),
-        item_class=_item_class(match.group(7)), action=match.group(8),
+        item_class=_item_class(match.group(7)), action=match.group(8), entity_id=_entity_id(match.group(7)),
     )
 
 
